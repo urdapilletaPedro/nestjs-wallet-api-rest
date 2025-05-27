@@ -1,33 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from 'src/user/user.service';
+import { RegisterDto } from './dtos/register.dto';
+import { UserDocument } from '../user/schema/user.schema';
+import { IToken } from './interfaces/token.interface';
+import { IPayload } from './interfaces/payload.interface';
 
 @Injectable()
 export class AuthService {
-  private users = []; // Simulación. Usá Mongo o tu DB real.
+  constructor(
+    private jwtService: JwtService,
+    private readonly userService: UserService,
+  ) {}
 
-  constructor(private jwtService: JwtService) {}
+  public async register(registerDto: RegisterDto): Promise<IToken> {
+    const { email, password } = registerDto;
 
-  //   async register(email: string, password: string) {
-  //     const hash = await bcrypt.hash(password, 10);
-  //     this.users.push({ email, password: hash });
-  //     return { message: 'User registered' };
-  //   }
+    const hash = await bcrypt.hash(password, 10);
+    const newUser: UserDocument = await this.userService.create({ email, password: hash });
 
-  //   async login(email: string, password: string) {
-  //     const user = this.users.find((u) => u.email === email);
-  //     if (!user) throw new Error('User not found');
+    const payload: IPayload = { sub: newUser.id };
 
-  //     const isMatch = await bcrypt.compare(password, user.password);
-  //     if (!isMatch) throw new Error('Invalid credentials');
+    return await this.generateToken(payload);
+  }
 
-  //     const payload = { sub: user.email, email: user.email };
-  //     const token = await this.jwtService.signAsync(payload);
+  public async login(email: string, password: string): Promise<IToken> {
+    const user: UserDocument = await this.userService.findByEmail(email);
 
-  //     return { access_token: token };
-  //   }
+    const isMatch: boolean = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new UnauthorizedException('Invalid credentials');
 
-  //   async getProfile(email: string) {
-  //     return this.users.find((u) => u.email === email);
-  //   }
+    const payload: IPayload = { sub: user.id};
+
+    return this.generateToken(payload);
+  }
+
+  private async generateToken(payload: IPayload): Promise<IToken> {
+    const token: string = await this.jwtService.signAsync(payload);
+    return {token: token};
+  }
 }
