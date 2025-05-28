@@ -1,7 +1,7 @@
 // src/users/user.repository.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, QueryOptions, Types } from 'mongoose';
+import { ClientSession, Model, QueryOptions, Types } from 'mongoose';
 import { User, UserDocument } from './schema/user.schema';
 import { BaseRepository } from '../common/base/base-repository';
 import { RegisterDto } from 'src/auth/dtos/register.dto';
@@ -26,8 +26,11 @@ export class UserRepository extends BaseRepository<UserDocument> {
     return user;
   }
 
-  public async create(dto: RegisterDto): Promise<UserDocument> {
-    return this.createOne(dto);
+  public async create(
+    dto: RegisterDto,
+    session: ClientSession,
+  ): Promise<UserDocument> {
+    return this.createOne(dto, session);
   }
 
   public async deleteAccount(userId: Types.ObjectId): Promise<void> {

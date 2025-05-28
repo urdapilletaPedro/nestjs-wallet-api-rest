@@ -11,14 +11,14 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  public async getAllAccounts() {
-    return await this.userService.getAllAccounts();
+  public getAllAccounts() {
+    return this.userService.getAllAccounts();
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('delete')
-  public async deleteAccount(@Request() req: AuthRequest) {
+  public deleteAccount(@Request() req: AuthRequest) {
     const userId: Types.ObjectId = new Types.ObjectId(req.user.userId);
-    return await this.userService.deleteAccount(userId);
+    return this.userService.deleteAccount(userId);
   }
 }

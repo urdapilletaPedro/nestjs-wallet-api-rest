@@ -8,12 +8,12 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  public async register(@Body() dto: RegisterDto) {
-    return await this.authService.register(dto);
+  public register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
   }
 
   @Post('login')
-  public async login(@Body() dto: LoginDto) {
-    return await this.authService.login(dto.email, dto.password);
+  public login(@Body() dto: LoginDto) {
+    return this.authService.login(dto.email, dto.password);
   }
 }

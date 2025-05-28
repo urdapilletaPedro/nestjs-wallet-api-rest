@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { UserDocument } from './schema/user.schema';
 import { UserRepository } from './user.repository';
-import { Types } from 'mongoose';
+import { ClientSession, Types } from 'mongoose';
 import { RegisterDto } from 'src/auth/dtos/register.dto';
 
 @Injectable()
@@ -20,7 +20,10 @@ export class UserService {
     return this.userRepository.findByEmail(email);
   }
 
-  public async create(dto: RegisterDto): Promise<UserDocument> {
+  public async create(
+    dto: RegisterDto,
+    session: ClientSession,
+  ): Promise<UserDocument> {
     await this.checkEmailExistence(dto.email);
 
     dto.email = dto.email.toLowerCase();

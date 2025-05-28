@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from '../user/user.module';
+import { WalletModule } from 'src/wallet/wallet.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UserModule } from '../user/user.module';
       }),
     }),
     UserModule,
+    WalletModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
