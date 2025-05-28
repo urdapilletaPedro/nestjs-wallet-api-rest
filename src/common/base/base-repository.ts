@@ -56,7 +56,7 @@ export class BaseRepository<T> implements IBaseRepository<HydratedDocument<T>> {
       ordered: true,
       session,
     });
-    return result as unknown as HydratedDocument<T>[]; // <-- forzamos el tipo correcto
+    return result as unknown as HydratedDocument<T>[];
   }
 
   public async update(
@@ -97,7 +97,7 @@ export class BaseRepository<T> implements IBaseRepository<HydratedDocument<T>> {
   }
 
   public async deleteById(
-    id: string | Types.ObjectId,
+    id: Types.ObjectId,
     options: QueryOptions = {},
     session?: ClientSession,
   ): Promise<HydratedDocument<T> | null> {

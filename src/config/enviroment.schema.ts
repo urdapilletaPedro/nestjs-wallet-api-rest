@@ -7,4 +7,6 @@ export const enviromentSchema = Joi.object({
   JWT_EXPIRATION: Joi.string().default('1h'),
 
   PORT: Joi.number().default(8000),
+
+  NODE_ENV: Joi.string().required(),
 });
