@@ -24,7 +24,7 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalFilters(new ExceptionsFilter());
+  app.useGlobalFilters(app.get(ExceptionsFilter));
 
   await app.listen(port);
 }

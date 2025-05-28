@@ -4,13 +4,13 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { AppLogger } from '../logger/logger.service'; // Ajustá el path según tu estructura
 
 @Catch()
 export class ExceptionsFilter implements ExceptionFilter {
-  private readonly logger = new Logger(ExceptionsFilter.name);
+  constructor(private readonly logger: AppLogger) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -23,21 +23,7 @@ export class ExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    let message = 'Internal server error';
-    if (exception instanceof HttpException) {
-      const res = exception.getResponse();
-      if (typeof res === 'string') {
-        message = res;
-      } else if (typeof res === 'object' && res !== null && 'message' in res) {
-        message = (res as any).message;
-      }
-    } else if ((exception as any)?.message) {
-      message = (exception as any).message;
-    }
-
-    this.logger.error(
-      `[${request.method}] ${request.url} → ${status} - ${JSON.stringify(message)}`,
-    );
+    const message = this.extractMessage(exception);
 
     const errorResponse: Record<string, any> = {
       statusCode: status,
@@ -50,6 +36,30 @@ export class ExceptionsFilter implements ExceptionFilter {
       errorResponse.stack = (exception as any)?.stack;
     }
 
+    this.logger.error(
+      `[${request.method}] ${request.url} → ${status} - ${message}`,
+      (exception as any)?.stack,
+    );
+
     response.status(status).json(errorResponse);
+  }
+
+  private extractMessage(exception: unknown) {
+    if (exception instanceof HttpException) {
+      const res = exception.getResponse();
+
+      if (typeof res === 'string') return res;
+
+      if (typeof res === 'object' && res !== null && 'message' in res) {
+        const { message } = res as any;
+        return Array.isArray(message) ? message.join(', ') : message;
+      }
+    }
+
+    if ((exception as any)?.message) {
+      return (exception as any).message;
+    }
+
+    return 'Internal server error';
   }
 }

@@ -5,6 +5,8 @@ import databaseConfig from './config/database.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { enviromentSchema } from './config/enviroment.schema';
+import { AppLogger } from './common/logger/logger.service';
+import { ExceptionsFilter } from './common/filters/exceptions.filter';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { enviromentSchema } from './config/enviroment.schema';
     UserModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [AppLogger, ExceptionsFilter],
+  exports: [AppLogger],
 })
 export class AppModule {}
