@@ -21,16 +21,13 @@ export class AuthService {
 
   public async register(registerDto: RegisterDto): Promise<IToken> {
     const session = await this.connection.startSession();
+    const { email, password } = registerDto;
 
     try {
-      let newUser: UserDocument;
-
       await session.withTransaction(async () => {
-        const { email, password } = registerDto;
-
         const hash = await bcrypt.hash(password, 10);
 
-        newUser = await this.userService.create(
+        const newUser: UserDocument = await this.userService.create(
           { email, password: hash },
           session,
         );
@@ -38,7 +35,8 @@ export class AuthService {
         await this.walletService.createWallet(newUser.id, session);
       });
 
-      const payload: IPayload = { sub: newUser.id };
+      const user: UserDocument = await this.userService.findByEmail(email);
+      const payload: IPayload = { sub: user.id };
       return this.generateToken(payload);
     } finally {
       session.endSession();

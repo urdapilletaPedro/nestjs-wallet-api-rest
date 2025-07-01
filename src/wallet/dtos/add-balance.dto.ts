@@ -1,9 +1,11 @@
-import { IsNumber, IsString, Min, IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNumber, Min } from 'class-validator';
+import { CurrencyCode } from '../constans/defaultBalance';
 
 export class AddBalanceDto {
-  @IsString()
-  @IsNotEmpty()
-  coin: string;
+  @IsEnum(CurrencyCode, {
+    message: 'La moneda debe ser USD, PYG, BTC o ETH',
+  })
+  coin: CurrencyCode;
 
   @IsNumber()
   @Min(0)

@@ -27,7 +27,7 @@ export class UserService {
     await this.checkEmailExistence(dto.email);
 
     dto.email = dto.email.toLowerCase();
-    return this.userRepository.create(dto);
+    return this.userRepository.create(dto, session);
   }
 
   public async deleteAccount(userId: Types.ObjectId) {
